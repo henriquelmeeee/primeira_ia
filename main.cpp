@@ -9,6 +9,8 @@ std::vector<Acao> acoes_feitas = {};
 long deu_tiro = 0;
 long tomou_tiro = 0;
 
+unsigned long geracoes = 0;
+
 long tomar_acao(Acao acao, Estado estado) {
     if(acao == Atirar) {
         if (estado.TemJogadorNaMira) {
@@ -136,6 +138,9 @@ void copiar_ias(std::vector<IA*>* IAs, IA* ultima_ia) {
 unsigned long deu_bom = 0;
 unsigned long deu_ruim = 0;
 
+IA* ia_treinada = nullptr;
+void jogar_com_ia();
+
 int main() {
     _sleep(1000);
     std::vector<IA*> IAs = {
@@ -183,9 +188,81 @@ int main() {
             std::cout << "NOVA GERACAO\n" << "\tIA mais performatica: " << ultimo_desempenho;
             std::cout << "\n\tAcertos: " << deu_bom << "\t\tErros: " << deu_ruim << "\t\tDiferenca: " << deu_bom-deu_ruim << "\n";
             std::cout << "\tTaxa de tiros: " << deu_tiro - tomou_tiro << "\n";
+            std::cout << "\t[";
+            for(Neuronio* neuronio : ultima_ia->m_neuronios) {
+                std::cout << neuronio->m_peso << ", ";
+            }
+            std::cout << "]\n";
             copiar_ias(&IAs, ultima_ia);
             rodada = 0;
+            ++geracoes;
         }
         ++rodada;
+        continue;
+        if(geracoes == 50) {
+            ia_treinada = ultima_ia;
+            std::cout << "---\nIA Treinada\nPesos:\n";
+            for(Neuronio* neuronio : ultima_ia->m_neuronios) {
+                std::cout << "\t" << neuronio->m_peso << "\n";
+            }
+            jogar_com_ia();
+            exit(0);
+        }
+        ++rodada;
+    }
+}
+
+std::vector<Acao> acoes_tomadas = {};
+
+void jogar_com_ia() {
+    Estado estado_jogador = {};
+    aleatorizar_estado(&estado_jogador);
+    Estado estado_ia = {};
+    estado_jogador.Vida = 100;
+    estado_ia.Vida = 100;
+    while(true) {
+        std::cout << "Jogando contra IA treinada\nEstado atual:\n";
+        if(estado_jogador.TemJogadorNaMira) {
+            std::cout << "\tA IA esta na sua mira;\n";
+        }
+        if(estado_jogador.TomandoTiro) {
+            std::cout << "\tVoce esta tomando tiro dela;\n";
+            estado_ia.TemJogadorNaMira = true;
+            --estado_jogador.Vida;
+        }
+        if(estado_jogador.NoAr) {
+            std::cout << "\tVoce esta no ar;\n";
+        }
+        std::cout << "\tSua vida eh " << estado_jogador.Vida << "\n\tVida da IA eh " << estado_ia.Vida << "\n";
+        int opcao;
+        std::cout << "Escolha sua opcao.\n[ 0 ] Mirar nela\n[ 1 ] Atirar nela\n[ 2 ] Virar esquerda ou direita\n";
+        std::cin >> opcao;
+        switch(opcao) {
+            case 0:
+                estado_jogador.TemJogadorNaMira = true;
+                break;
+            case 1:
+                if(estado_jogador.TemJogadorNaMira) {
+                    --estado_ia.Vida;
+                    estado_ia.TomandoTiro = true;
+                }
+                break;
+            case 2:
+                estado_jogador.TomandoTiro = false;
+                estado_ia.TemJogadorNaMira = false;
+                break;
+        }
+        ia_treinada->executar(quantificar_estado(estado_ia), estado_ia);
+        for(Acao acao : acoes_tomadas) {
+            if(acao == Atirar) {
+                estado_jogador.Vida -= 1;
+            } else if (acao == AndarEsquerda || acao == AndarDireita) {
+                estado_jogador.TemJogadorNaMira = false;
+                //estado_ia.TemJogadorNaMira = false;
+            }
+        }
+
+        acoes_tomadas.clear();
+
     }
 }
