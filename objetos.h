@@ -34,6 +34,8 @@ extern unsigned long deu_ruim;
 extern long acoes_nao_tomadas_mas_deveria;
 extern long acoes_nao_tomadas_certo;
 
+extern std::vector<Acao> acoes_tomadas;
+
 class Neuronio {
     private:
         Acao m_acao;
@@ -44,6 +46,7 @@ class Neuronio {
         int executar(unsigned int estado_quantificado, Estado estado_real) {
             if(deve_tomar_acao(m_peso, estado_quantificado, m_acao, estado_real)) {
                 long resultado = tomar_acao(m_acao, estado_real);
+                acoes_tomadas.push_back(m_acao);
                 //std::cout << "resultado: " << resultado << "\t\tpeso: " << m_peso << "\n";
                 if(resultado >= 0)
                     ++deu_bom;
