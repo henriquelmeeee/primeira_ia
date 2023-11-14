@@ -28,8 +28,11 @@ long tomar_acao(Acao, Estado estado);
 
 extern int rodadas;
 
-extern unsigned long acoes_nao_tomadas_mas_deveria;
-extern unsigned long acoes_nao_tomadas_certo;
+extern unsigned long deu_bom;
+extern unsigned long deu_ruim;
+
+extern long acoes_nao_tomadas_mas_deveria;
+extern long acoes_nao_tomadas_certo;
 
 class Neuronio {
     private:
@@ -42,16 +45,22 @@ class Neuronio {
             if(deve_tomar_acao(m_peso, estado_quantificado, m_acao, estado_real)) {
                 long resultado = tomar_acao(m_acao, estado_real);
                 //std::cout << "resultado: " << resultado << "\t\tpeso: " << m_peso << "\n";
+                if(resultado >= 0)
+                    ++deu_bom;
+                else
+                    ++deu_ruim;
                 return resultado; 
             } else {
                 //std::cout << "SEM ACAO PARA " << m_acao;
                 if(tomar_acao(m_acao, estado_real) > 0) {
                     //std::cout << "\t\t\tMAS DEVIA\n";
                     ++acoes_nao_tomadas_mas_deveria;
+                    ++deu_ruim;
                     return -6;
                 }
                 ++acoes_nao_tomadas_certo;
-                //std::cout << "\t\t\tGGG!\n";
+                ++deu_bom;
+                //std::cout << "\t\t\tGGG\n";
                 return 6;
             }
         }
@@ -73,7 +82,7 @@ class IA {
                 std::random_device rd;
                 std::mt19937 gen(rd());
 
-                std::uniform_int_distribution<> distribValor(0, 100);
+                std::uniform_int_distribution<> distribValor(0, 5);
 
                 neuronio->m_peso = distribValor(gen);
             }
