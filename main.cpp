@@ -6,8 +6,8 @@
 
 std::vector<Acao> acoes_feitas = {};
 
-unsigned long deu_tiro = 0;
-unsigned long tomou_tiro = 0;
+long deu_tiro = 0;
+long tomou_tiro = 0;
 
 long tomar_acao(Acao acao, Estado estado) {
     if(acao == Atirar) {
@@ -42,9 +42,8 @@ long tomar_acao(Acao acao, Estado estado) {
             return 0;
     }
 }
-
-unsigned long acoes_nao_tomadas_mas_deveria = 0;
-unsigned long acoes_nao_tomadas_certo = 0;
+long acoes_nao_tomadas_mas_deveria = 0;
+long acoes_nao_tomadas_certo = 0;
 
 bool deve_tomar_acao(long peso, int estado_quantificado, Acao acao, Estado estado) {
     // Aumenta o fator de escala para tornar a função mais sensível a pesos negativos
@@ -57,7 +56,7 @@ bool deve_tomar_acao(long peso, int estado_quantificado, Acao acao, Estado estad
     double sigmoide = 1 / (1 + exp(-peso_ajustado * estado_quantificado));
 
     // Aumenta o limiar para tornar a decisão mais rigorosa
-    double limiar = 0.4; // Ajuste conforme necessário
+    double limiar = 0.6; // Ajuste conforme necessário
 
     return sigmoide > limiar;
 }
@@ -134,7 +133,11 @@ void copiar_ias(std::vector<IA*>* IAs, IA* ultima_ia) {
     }
 }
 
+unsigned long deu_bom = 0;
+unsigned long deu_ruim = 0;
+
 int main() {
+    _sleep(1000);
     std::vector<IA*> IAs = {
         criar_ia(),
         criar_ia(),
@@ -176,9 +179,10 @@ int main() {
             //std::cout << "Nao houve ultima IA boa\n";
             //exit(1);
         //}
-        if(rodada == 15) {
+        if(rodada == 50) {
             std::cout << "NOVA GERACAO\n" << "\tIA mais performatica: " << ultimo_desempenho;
-            std::cout << "\n\tTaxa de tiro certo: " << deu_tiro << "\t\tTaxa de tiro errado: " << tomou_tiro << "\n\tdeu_tiro-tomou_tiro: " << deu_tiro-tomou_tiro << "\n";
+            std::cout << "\n\tAcertos: " << deu_bom << "\t\tErros: " << deu_ruim << "\t\tDiferenca: " << deu_bom-deu_ruim << "\n";
+            std::cout << "\tTaxa de tiros: " << deu_tiro - tomou_tiro << "\n";
             copiar_ias(&IAs, ultima_ia);
             rodada = 0;
         }
