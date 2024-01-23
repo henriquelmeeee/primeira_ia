@@ -11,6 +11,7 @@ long tomou_tiro = 0;
 
 unsigned long geracoes = 0;
 
+// dirty and boring function just to make the "game logic"
 long tomar_acao(Acao acao, Estado estado) {
     if(acao == Atirar) {
         if (estado.TemJogadorNaMira) {
@@ -20,22 +21,24 @@ long tomar_acao(Acao acao, Estado estado) {
             tomou_tiro++;
             return -2;
         }
-    } else if (acao == FazerNada) {
+    } 
+    if (acao == FazerNada) {
         if(estado.TemJogadorNaMira && estado.TomandoTiro) 
             return -3;
         else if (estado.TemJogadorNaMira) 
             return -4;
         else
             return 6;
-        
-    } else if (acao == AndarDireita || acao == AndarEsquerda) {
+    } 
+    if (acao == AndarDireita || acao == AndarEsquerda) {
         if(estado.TomandoTiro && estado.TemJogadorNaMira)
             return -4;
         else if (estado.TemJogadorNaMira && !(estado.TomandoTiro))
             return -3;
         else
             return 5;
-    } else if (acao == Pular) {
+    } 
+    if (acao == Pular) {
         if(estado.TomandoTiro && estado.TemJogadorNaMira) 
             return -3;
         else if (estado.TomandoTiro && !(estado.TemJogadorNaMira))
@@ -48,17 +51,13 @@ long acoes_nao_tomadas_mas_deveria = 0;
 long acoes_nao_tomadas_certo = 0;
 
 bool deve_tomar_acao(long peso, int estado_quantificado, Acao acao, Estado estado) {
-    // Aumenta o fator de escala para tornar a função mais sensível a pesos negativos
-    double fator_escala = 0.15; // Ajuste conforme necessário
+    double fator_escala = 0.15; // may need adjust
 
-    // Ajusta o peso
     double peso_ajustado = peso * fator_escala;
 
-    // Calcula o valor da função sigmóide
     double sigmoide = 1 / (1 + exp(-peso_ajustado * estado_quantificado));
 
-    // Aumenta o limiar para tornar a decisão mais rigorosa
-    double limiar = 0.6; // Ajuste conforme necessário
+    double limiar = 0.6; // here too
 
     return sigmoide > limiar;
 }
@@ -78,8 +77,8 @@ void aleatorizar_estado(Estado* estado) {
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    std::uniform_int_distribution<> distribBool(0, 1);  // Para valores booleanos (true ou false)
-    std::uniform_int_distribution<> distribVida(0, 100); // Para o valor de vida
+    std::uniform_int_distribution<> distribBool(0, 1);  
+    std::uniform_int_distribution<> distribVida(0, 100);
 
     estado->TomandoTiro = distribBool(gen) == 1;
     estado->NoAr = distribBool(gen) == 1;
@@ -105,6 +104,7 @@ long penultimo_melhor_desempenho = -999999;
 bool permanecer_primeira_ia = false;
 
 void copiar_ias(std::vector<IA*>* IAs, IA* ultima_ia) {
+    // another dirty code just to copy the agents
     *IAs = {
         ultima_ia,
         ultima_ia,
@@ -143,6 +143,7 @@ void jogar_com_ia();
 
 int main() {
     _sleep(1000);
+    // one more dirty code
     std::vector<IA*> IAs = {
         criar_ia(),
         criar_ia(),
@@ -180,10 +181,14 @@ int main() {
             permanecer_primeira_ia = false;
             penultimo_melhor_desempenho = ultimo_desempenho;
         }
+        
+        // DEBUGGING PURPOSES
+        
         //if(ultima_ia == nullptr) {
             //std::cout << "Nao houve ultima IA boa\n";
             //exit(1);
         //}
+        
         if(rodada == 50) {
             std::cout << "NOVA GERACAO\n" << "\tIA mais performatica: " << ultimo_desempenho;
             std::cout << "\n\tAcertos: " << deu_bom << "\t\tErros: " << deu_ruim << "\t\tDiferenca: " << deu_bom-deu_ruim << "\n";
@@ -213,6 +218,8 @@ int main() {
 }
 
 std::vector<Acao> acoes_tomadas = {};
+
+// incomplete function
 
 void jogar_com_ia() {
     Estado estado_jogador = {};
